@@ -17,25 +17,30 @@ class Game
 	private void CreateRooms()
 	{
 		// Create the rooms
-		Room outside = new Room("outside the main entrance of the university");
+		Room enterence = new Room("outside the main entrance of the university");
 		Room theatre = new Room("in a lecture theatre");
 		Room pub = new Room("in the campus pub");
 		Room lab = new Room("in a computing lab");
 		Room office = new Room("in the computing admin office");
+		Room basement = new Room("in matthews basement full with small children");
 
 		// Initialise room exits
-		outside.AddExit("east", theatre);
-		outside.AddExit("south", lab);
-		outside.AddExit("west", pub);
+		enterence.AddExit("east", theatre);
+		enterence.AddExit("south", lab);
+		enterence.AddExit("west", pub);
 
-		theatre.AddExit("west", outside);
+		theatre.AddExit("west", enterence);
 
-		pub.AddExit("east", outside);
+		pub.AddExit("east", enterence);
 
-		lab.AddExit("north", outside);
+		lab.AddExit("north", enterence);
 		lab.AddExit("east", office);
 
 		office.AddExit("west", lab);
+		office.AddExit("down", basement);
+
+		basement.AddExit("up", office);
+	
 
 		// Create your Items here
 		// ...
@@ -43,7 +48,7 @@ class Game
 		// ...
 
 		// Start game outside
-		currentRoom = outside;
+		currentRoom = enterence;
 	}
 
 	//  Main play routine. Loops until end of play.
@@ -59,9 +64,6 @@ class Game
 			Command command = parser.GetCommand();
 			finished = ProcessCommand(command);
 		}
-		Console.WriteLine("Thank you for playing.");
-		Console.WriteLine("Press [Enter] to continue.");
-		Console.ReadLine();
 	}
 
 	// Print out the opening message for the player.
@@ -98,6 +100,9 @@ class Game
 				break;
 			case "quit":
 				wantToQuit = true;
+				break;
+			case "look":
+				look();
 				break;
 		}
 
@@ -143,4 +148,11 @@ class Game
 		currentRoom = nextRoom;
 		Console.WriteLine(currentRoom.GetLongDescription());
 	}
+
+	private void look()
+	
+		{
+			Console.WriteLine(currentRoom.GetLongDescription());
+		}
+	
 }
