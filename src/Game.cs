@@ -153,7 +153,7 @@ class Game
 
 	public void stats()
 	{
-		Console.WriteLine("Player HP is " + player.HP);
+		Console.WriteLine("Player HP is " + "(" + player.HP + ")");
 
 	}
 
