@@ -1,6 +1,6 @@
 # Zuul
 
-A boring textadventure.
+A work in progress text adventure
 
 ## How to play
 
@@ -11,3 +11,5 @@ Open this directory (with the Zuul.csproj file) in the terminal and type:
 ```
 dotnet run
 ```
+
+or use git bash and open it in the folder

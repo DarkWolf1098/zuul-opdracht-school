@@ -23,7 +23,7 @@ class Game
 		Room pub = new Room("in the campus pub");
 		Room lab = new Room("in a computing lab");
 		Room office = new Room("in the computing admin office");
-		Room basement = new Room("in matthews basement full with small children");
+		Room basement = new Room("in matthews basement full with small children(and justin)");
 
 		// Initialise room exits
 		enterence.AddExit("east", theatre);
