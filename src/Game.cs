@@ -3,13 +3,14 @@ using System;
 class Game
 {
 	// Private fields
-	private Parser parser;
-	private Room currentRoom;
+	public Parser parser;
+	public Player player;
 
 	// Constructor
 	public Game()
 	{
 		parser = new Parser();
+		player = new Player();
 		CreateRooms();
 	}
 
@@ -48,13 +49,13 @@ class Game
 		// ...
 
 		// Start game outside
-		currentRoom = enterence;
+		player.CurrentRoom =enterence;
 	}
 
-	//  Main play routine. Loops until end of play.
+	//  Main play routine. Loops until end of play
 	public void Play()
 	{
-		PrintWelcome();
+		player.PrintWelcome();
 
 		// Enter the main command loop. Here we repeatedly read commands and
 		// execute them until the player wants to quit.
@@ -67,15 +68,7 @@ class Game
 	}
 
 	// Print out the opening message for the player.
-	private void PrintWelcome()
-	{
-		Console.WriteLine();
-		Console.WriteLine("Welcome to Zuul!");
-		Console.WriteLine("Zuul is a new, incredibly boring adventure game.");
-		Console.WriteLine("Type 'help' if you need help.");
-		Console.WriteLine();
-		Console.WriteLine(currentRoom.GetLongDescription());
-	}
+
 
 	// Given a command, process (that is: execute) the command.
 	// If this command ends the game, it returns true.
@@ -126,7 +119,7 @@ class Game
 
 	// Try to go to one direction. If there is an exit, enter the new
 	// room, otherwise print an error message.
-	private void GoRoom(Command command)
+	public void GoRoom(Command command)
 	{
 		if(!command.HasSecondWord())
 		{
@@ -138,21 +131,21 @@ class Game
 		string direction = command.SecondWord;
 
 		// Try to go to the next room.
-		Room nextRoom = currentRoom.GetExit(direction);
+		Room nextRoom = player.CurrentRoom.GetExit(direction);
 		if (nextRoom == null)
 		{
 			Console.WriteLine("There is no door to "+direction+"!");
 			return;
 		}
 
-		currentRoom = nextRoom;
-		Console.WriteLine(currentRoom.GetLongDescription());
+		player.CurrentRoom = nextRoom;
+		Console.WriteLine(player.CurrentRoom.GetLongDescription());
 	}
 
-	private void look()
+	public void look()
 	
 		{
-			Console.WriteLine(currentRoom.GetLongDescription());
+			Console.WriteLine(player.CurrentRoom.GetLongDescription());
 		}
 	
 }
