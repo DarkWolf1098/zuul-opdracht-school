@@ -1,161 +1,165 @@
 using System;
+using System.Diagnostics;
 
 class Game
 {
-	// Private fields
-	public Parser parser;
-	public Player player;
+    // Private fields
+    public Parser parser;
+    public Player player;
 
-	// Constructor
-	public Game()
-	{
-		parser = new Parser();
-		player = new Player();
-		CreateRooms();
-	}
+    // Constructor
+    public Game()
+    {
+        parser = new Parser();
+        player = new Player();
+        CreateRooms();
+    }
 
-	// Initialise the Rooms (and the Items)
-	private void CreateRooms()
-	{
-		// Create the rooms
-		Room enterence = new Room("outside the main entrance of the university");
-		Room theatre = new Room("in a lecture theatre");
-		Room pub = new Room("in the campus pub");
-		Room lab = new Room("in a computing lab");
-		Room office = new Room("in the computing admin office");
-		Room basement = new Room("in matthews basement full with small children(and justin)");
+    // Initialise the Rooms (and the Items)
+    private void CreateRooms()
+    {
+        // Create the rooms
+        Room enterence = new Room("outside the main entrance of the university");
+        Room theatre = new Room("in a lecture theatre");
+        Room pub = new Room("in the campus pub");
+        Room lab = new Room("in a computing lab");
+        Room office = new Room("in the computing admin office");
+        Room basement = new Room("in Matthew's basement full with small children (and Justin)");
 
-		// Initialise room exits
-		enterence.AddExit("east", theatre);
-		enterence.AddExit("south", lab);
-		enterence.AddExit("west", pub);
+        // Initialise room exits
+        enterence.AddExit("east", theatre);
+        enterence.AddExit("south", lab);
+        enterence.AddExit("west", pub);
 
-		theatre.AddExit("west", enterence);
+        theatre.AddExit("west", enterence);
 
-		pub.AddExit("east", enterence);
+        pub.AddExit("east", enterence);
 
-		lab.AddExit("north", enterence);
-		lab.AddExit("east", office);
+        lab.AddExit("north", enterence);
+        lab.AddExit("east", office);
 
-		office.AddExit("west", lab);
-		office.AddExit("down", basement);
+        office.AddExit("west", lab);
+        office.AddExit("down", basement);
 
-		basement.AddExit("up", office);
+        basement.AddExit("up", office);
 
+        // Start game outside
+        player.CurrentRoom = enterence;
+    }
 
-		// Create your Items here
-		// ...
-		// And add them to the Rooms
-		// ...
+    // Main play routine. Loops until end of play
+    public void Play()
+    {
+        player.PrintWelcome();
 
-		// Start game outside
-		player.CurrentRoom = enterence;
-	}
+        // Enter the main command loop. Here we repeatedly read commands and
+        // execute them until the player wants to quit.
+        bool finished = false;
+        while (!finished)
+        {
+            Command command = parser.GetCommand();
+            finished = ProcessCommand(command);
+        }
+    }
 
-	//  Main play routine. Loops until end of play
-	public void Play()
-	{
-		player.PrintWelcome();
+    // Given a command, process (that is: execute) the command.
+    // If this command ends the game, it returns true.
+    // Otherwise false is returned.
+    private bool ProcessCommand(Command command)
+    {
+        bool wantToQuit = false;
 
-		// Enter the main command loop. Here we repeatedly read commands and
-		// execute them until the player wants to quit.
-		bool finished = false;
-		while (!finished)
-		{
-			Command command = parser.GetCommand();
-			finished = ProcessCommand(command);
-		}
-	}
+        if (command.IsUnknown())
+        {
+            Console.WriteLine("I don't know what you mean...");
+            return wantToQuit; // false
+        }
 
-	// Print out the opening message for the player.
+        switch (command.CommandWord)
+        {
+            case "help":
+                PrintHelp();
+                break;
+            case "go":
+                GoRoom(command);
+                break;
+            case "quit":
+                wantToQuit = true;
+                break;
+            case "look":
+                Look();
+                break;
+            case "stats":
+                Stats();
+                break;
+        }
 
+        return wantToQuit;
+    }
 
-	// Given a command, process (that is: execute) the command.
-	// If this command ends the game, it returns true.
-	// Otherwise false is returned.
-	private bool ProcessCommand(Command command)
-	{
-		bool wantToQuit = false;
+    // ######################################
+    // Implementations of user commands:
+    // ######################################
 
-		if (command.IsUnknown())
-		{
-			Console.WriteLine("I don't know what you mean...");
-			return wantToQuit; // false
-		}
+    // Print out some help information.
+    private void PrintHelp()
+    {
+        Console.WriteLine("You are lost. You are alone.");
+        Console.WriteLine("You wander around at the university.");
+        Console.WriteLine();
+        parser.PrintValidCommands();
+    }
 
-		switch (command.CommandWord)
-		{
-			case "help":
-				PrintHelp();
-				break;
-			case "go":
-				GoRoom(command);
-				break;
-			case "quit":
-				wantToQuit = true;
-				break;
-			case "look":
-				look();
-				break;
-			case "stats":
-				stats();
-				break;
-		}
+    // Try to go to one direction. If there is an exit, enter the new
+    // room, otherwise print an error message.
+    public void GoRoom(Command command)
+    {
+        if (!command.HasSecondWord())
+        {
+            Console.WriteLine("Go where?");
+            return;
+        }
 
-		return wantToQuit;
-	}
+        string direction = command.SecondWord;
+        Room nextRoom = player.CurrentRoom.GetExit(direction);
 
-	// ######################################
-	// implementations of user commands:
-	// ######################################
+        if (nextRoom == null)
+        {
+            Console.WriteLine("There is no door to " + direction + "!");
+            return;
+        }
 
-	// Print out some help information.
-	// Here we print the mission and a list of the command words.
-	private void PrintHelp()
-	{
-		Console.WriteLine("You are lost. You are alone.");
-		Console.WriteLine("You wander around at the university.");
-		Console.WriteLine();
-		// let the parser print the commands
-		parser.PrintValidCommands();
-	}
+        // Reduce HP before changing rooms
+        player.HP -= 25;
 
-	// Try to go to one direction. If there is an exit, enter the new
-	// room, otherwise print an error message.
-	public void GoRoom(Command command)
-	{
-		if (!command.HasSecondWord())
-		{
-			// if there is no second word, we don't know where to go...
-			Console.WriteLine("Go where?");
-			return;
-		}
+        // Check if player is dead before moving rooms
+        if (player.HP <= 0)
+        {
+            CheckGameOver(); // Ends the game before showing the new room
+            return;
+        }
 
-		string direction = command.SecondWord;
+        // Only update the room and display description if the player is alive
+        player.CurrentRoom = nextRoom;
+        Console.WriteLine(player.CurrentRoom.GetLongDescription());
+    }
 
-		// Try to go to the next room.
-		Room nextRoom = player.CurrentRoom.GetExit(direction);
-		if (nextRoom == null)
-		{
-			Console.WriteLine("There is no door to " + direction + "!");
-			return;
-		}
+    public void Look()
+    {
+        Console.WriteLine(player.CurrentRoom.GetLongDescription());
+    }
 
-		player.CurrentRoom = nextRoom;
-		Console.WriteLine(player.CurrentRoom.GetLongDescription());
-	}
+    public void Stats()
+    {
+        Console.WriteLine("Player HP is " + "(" + player.HP + ")");
+    }
 
-	public void look()
-
-	{
-		Console.WriteLine(player.CurrentRoom.GetLongDescription());
-	}
-
-	public void stats()
-	{
-		Console.WriteLine("Player HP is " + "(" + player.HP + ")");
-
-	}
-
-
+    public void CheckGameOver()
+    {
+        if (player.HP <= 0)
+        {
+            Console.WriteLine("Your HP has reached 0. Game over.");
+            Environment.Exit(0); // Quit the game
+        }
+    }
 }
