@@ -1,13 +1,23 @@
+using System;
+
 class Player
 {
-    public int HP;
-	    public void Damage(int amount)
+    private int hp;
+
+    public int HP
+    {
+        get { return hp; }
+        private set { hp = Math.Max(0, value); } // Ensures HP never goes below 0
+    }
+
+    public Player()
+    {
+        HP = 100;
+    }
+
+    public void Damage(int amount)
     {
         HP -= amount;
-        if (HP < 0)
-        {
-            HP = 0;
-        }
     }
 
     public void Heal(int amount)
@@ -22,12 +32,6 @@ class Player
 
     public Room CurrentRoom { get; set; }
 
-    // Correct constructor
-    public Player() 
-    {
-        HP = 100;
-    }
-
     public void PrintWelcome()
     {
         Console.WriteLine();
@@ -38,30 +42,8 @@ class Player
         Console.WriteLine(CurrentRoom.GetLongDescription());
     }
 
-    public void GoRoom(Command command)
-    {
-        if (!command.HasSecondWord())
-        {
-            Console.WriteLine("Go where?");
-            return;
-        }
-
-        string direction = command.SecondWord;
-        Room nextRoom = CurrentRoom.GetExit(direction);
-
-        if (nextRoom == null)
-        {
-            Console.WriteLine("There is no door to " + direction + "!");
-            return;
-        }
-
-        CurrentRoom = nextRoom;
-        Console.WriteLine(CurrentRoom.GetLongDescription());
-    }
-
     public void Look()
     {
         Console.WriteLine(CurrentRoom.GetLongDescription());
     }
-
 }
